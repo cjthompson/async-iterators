@@ -1,0 +1,32 @@
+{
+  "name": "async-iterators",
+  "version": "1.0.0-dev",
+  "description": "Iterator functions that run each cycle of the loop asynchronously",
+  "main": "index.js",
+  "engines": {
+    "node": ">4.0.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/cjthompson/async-iterators.git"
+  },
+  "keywords": [
+    "iterators",
+    "async",
+    "asynchronous",
+    "es6"
+  ],
+  "author": "Chris Thompson <chris@thompson-web.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cjthompson/async-iterators/issues"
+  },
+  "homepage": "https://github.com/cjthompson/async-iterators#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "must": "^0.13.1"
+  }
+}
