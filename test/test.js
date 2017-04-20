@@ -140,9 +140,7 @@ describe('Async map', function () {
 
 describe('Async transform', function () {
   it('should transform an array with keys and values', function () {
-    return transform([1, 2, 3, 4], (a, v, k) => {
-      a[v] = k;
-    }, {})
+    return transform([1, 2, 3, 4], (a, v, k) => { a[v] = k })
       .then(result => {
         result.must.eql({ '1': 0, '2': 1, '3': 2, '4': 3 });
       })
@@ -158,7 +156,7 @@ describe('Async transform', function () {
   });
 
   it('should transform an object with keys and values', function () {
-    return transform({ a: true, b: 'b', c: true }, (a, v, k) => v === true ? a[k] = 'hi' : undefined, {})
+    return transform({ a: true, b: 'b', c: true }, (a, v, k) => v === true ? a[k] = 'hi' : undefined)
       .then(result => {
         result.must.eql({ a: 'hi', c: 'hi' });
       });
@@ -166,9 +164,7 @@ describe('Async transform', function () {
 
   it('should iterate an object with numeric keys', function () {
     const source = { 1: 1, 2: 2, 3: 3 };
-    return transform(source, (a, v, k) => {
-      a[k] = v * 2;
-    })
+    return transform(source, (a, v, k) => { a[k] = v * 2; })
       .then(result => {
         result.must.eql({ 1: 2, 2: 4, 3: 6 });
         source.must.eql({ "1": 1, "2": 2, "3": 3 });
@@ -185,7 +181,7 @@ describe('Async transform', function () {
   it('should iterate an array with keys and values', function () {
     const start = [1, 2, 3, 4];
     const keys = ['a', 'b', 'c', 'd'];
-    return transform(start, (a, v, k) => a[keys[k]] = v * 2, {})
+    return transform(start, (a, v, k) => a[keys[k]] = v * 2)
       .then(result => {
         result.must.eql({ a: 2, b: 4, c: 6, d: 8 });
         start.must.eql([1, 2, 3, 4]);
@@ -198,7 +194,6 @@ describe('Async transform', function () {
       args.must.eql([{}, 1, 0, [1]]);
     });
   });
-
 });
 
 describe('Async reduce', function () {
@@ -209,5 +204,73 @@ describe('Async reduce', function () {
         result.must.eql(6);
         source.must.eql({ a: 1, b: 2, c: 3 });
       });
+  });
+
+  it('should reduce an array with keys and values', function () {
+    return reduce([1, 2, 3, 4], (a, v, k) => { a[v] = k; return a; }, {})
+      .then(result => {
+        result.must.eql({ '1': 0, '2': 1, '3': 2, '4': 3 });
+      })
+  });
+
+  it('should reduce an array without mutating the source array', function () {
+    const source = [1, 2, 3];
+    return reduce(source, (a, v) => { a.push(v * 2); return a; }, [])
+      .then(result => {
+        result.must.eql([2, 4, 6]);
+        source.must.eql([1, 2, 3]);
+      });
+  });
+
+  it('should reduce an object with keys and values', function () {
+    return reduce({ a: true, b: 'b', c: true }, (a, v, k) => {
+      if (v === true) { a[k] = 'hi' }
+      return a;
+    }, {})
+      .then(result => {
+        result.must.eql({ a: 'hi', c: 'hi' });
+      });
+  });
+
+  it('should iterate an object with numeric keys', function () {
+    const source = { 1: 1, 2: 2, 3: 3 };
+    return reduce(source, (a, v, k) => {
+      a[k] = v * 2;
+      return a;
+    }, {})
+      .then(result => {
+        result.must.eql({ 1: 2, 2: 4, 3: 6 });
+        source.must.eql({ "1": 1, "2": 2, "3": 3 });
+      });
+  });
+
+  it('should iterate an object with non-enumerable values', function () {
+    return reduce({ a: true, b: 1, c: [1, 2], d: /test/ }, (a, v, k) => {
+      a[String(v)] = v;
+      return a;
+    }, {})
+      .then(result => {
+        result.must.eql({ '1': 1, 'true': true, '1,2': [1, 2], '/test/': /test/ });
+      });
+  });
+
+  it('should iterate an array with keys and values', function () {
+    const start = [1, 2, 3, 4];
+    const keys = ['a', 'b', 'c', 'd'];
+    return reduce(start, (a, v, k) => {
+      a[keys[k]] = v * 2;
+      return a;
+    }, {})
+      .then(result => {
+        result.must.eql({ a: 2, b: 4, c: 6, d: 8 });
+        start.must.eql([1, 2, 3, 4]);
+      });
+  });
+
+  it('should provide correct `iteratee` arguments', function () {
+    return reduce([1], function () {
+      const args = Array.prototype.slice.call(arguments);
+      args.must.eql([0, 1, 0, [1]]);
+    }, 0);
   });
 });
