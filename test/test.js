@@ -1,11 +1,11 @@
 "use strict";
 
 require('must');
-const forEach = require('../lib').forEach;
-const map = require('../lib').map;
-const transform = require('../lib').transform;
-const reduce = require('../lib').reduce;
-const iterate = require('../lib').iterate;
+const forEach = require('..').forEach;
+const map = require('..').map;
+const transform = require('..').transform;
+const reduce = require('..').reduce;
+const iterate = require('..').iterate;
 
 describe('Async forEach', function () {
   it('should be async', function () {
@@ -63,6 +63,27 @@ describe('Async forEach', function () {
     });
   });
 
+  it('should iterate an array of Promises', function () {
+    const promises = [
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3)
+    ];
+
+    return forEach(promises, (v, k) => v.must.equal(k + 1));
+  });
+
+  it('should iterate an object with Promise values', function () {
+    const promises = {
+      first: Promise.resolve(1),
+      second: Promise.resolve(2),
+      third: Promise.resolve(3)
+    };
+
+    let result = '';    
+    return forEach(promises, (v, k) => result += `${k}: ${v}, `)
+      .then(() => result.must.equal('first: 1, second: 2, third: 3, '));
+  });
 });
 
 describe('Async map', function () {
@@ -136,6 +157,28 @@ describe('Async map', function () {
       args.must.eql([1, 0, [1]]);
     });
   });
+
+  it('should iterate an array of Promises', function () {
+    const promises = [
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3)
+    ];
+
+    return map(promises, (v, k) => v * k)
+      .then(result => result.must.eql[0, 2, 6]);
+  });
+
+  it('should iterate an object with Promise values', function () {
+    const promises = {
+      first: Promise.resolve(1),
+      second: Promise.resolve(2),
+      third: Promise.resolve(3)
+    };
+
+    return map(promises, (v, k) => `${k}: ${v}`)
+      .then(result => result.must.eql(['first: 1', 'second: 2', 'third: 3']));
+  });
 });
 
 describe('Async transform', function () {
@@ -193,6 +236,28 @@ describe('Async transform', function () {
       const args = Array.prototype.slice.call(arguments);
       args.must.eql([{}, 1, 0, [1]]);
     });
+  });
+
+  it('should iterate an array of Promises', function () {
+    const promises = [
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3)
+    ];
+
+    return transform(promises, (a, v, k) => a[k] = v * k)
+      .then(result => result.must.eql({ '0': 0, '1': 2, '2': 6 }));
+  });
+
+  it('should iterate an object with Promise values', function () {
+    const promises = {
+      first: Promise.resolve(1),
+      second: Promise.resolve(2),
+      third: Promise.resolve(3)
+    };
+
+    return transform(promises, (a, v, k) => a[v] = k)
+      .then(result => result.must.eql({ '1': 'first', '2': 'second', '3': 'third' }));
   });
 });
 
@@ -272,5 +337,27 @@ describe('Async reduce', function () {
       const args = Array.prototype.slice.call(arguments);
       args.must.eql([0, 1, 0, [1]]);
     }, 0);
+  });
+
+  it('should iterate an array of Promises', function () {
+    const promises = [
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3)
+    ];
+
+    return reduce(promises, (a, v, k) => a + (v * k), 0)
+      .then(result => result.must.eql(8));
+  });
+
+  it('should iterate an object with Promise values', function () {
+    const promises = {
+      first: Promise.resolve(1),
+      second: Promise.resolve(2),
+      third: Promise.resolve(3)
+    };
+
+    return reduce(promises, (a, v, k) => a + (v * v), 0)
+      .then(result => result.must.eql(14));
   });
 });
