@@ -84,6 +84,15 @@ describe('Async forEach', function () {
     return forEach(promises, (v, k) => result += `${k}: ${v}, `)
       .then(() => result.must.equal('first: 1, second: 2, third: 3, '));
   });
+
+  it('should resolve iteratee function result if it is a Promise', function () {
+    let sum = 0;
+    
+    return forEach([1, 2, 3, 4], (v, k) => new Promise(r => {
+      setTimeout(() => { sum += (v * k); r(); }, 10);
+    }))
+      .then(() => sum.must.eql(20));
+  });
 });
 
 describe('Async map', function () {
@@ -179,6 +188,13 @@ describe('Async map', function () {
     return map(promises, (v, k) => `${k}: ${v}`)
       .then(result => result.must.eql(['first: 1', 'second: 2', 'third: 3']));
   });
+
+  it('should resolve iteratee function result if it is a Promise', function () {
+    return map([1, 2, 3, 4], (v, k) => new Promise(r => {
+      setTimeout(() => r(v * k), 10);
+    }))
+      .then(result => result.must.eql([0, 2, 6, 12]));
+  });
 });
 
 describe('Async transform', function () {
@@ -258,6 +274,13 @@ describe('Async transform', function () {
 
     return transform(promises, (a, v, k) => a[v] = k)
       .then(result => result.must.eql({ '1': 'first', '2': 'second', '3': 'third' }));
+  });
+
+  it('should resolve iteratee function result if it is a Promise', function () {
+    return transform([1, 2, 3, 4], (a, v, k) => new Promise(r => {
+      setTimeout(() => { a[k] = v; r(); }, 10);
+    }))
+      .then(result => result.must.eql({ '0': 1, '1': 2, '2': 3, '3': 4 }));
   });
 });
 
@@ -359,5 +382,12 @@ describe('Async reduce', function () {
 
     return reduce(promises, (a, v, k) => a + (v * v), 0)
       .then(result => result.must.eql(14));
+  });
+
+  it('should resolve iteratee function result if it is a Promise', function () {
+    return reduce([1, 2, 3, 4], (a, v, k) => new Promise(r => {
+      setTimeout(() => r(a + (v * k)), 10);
+    }), 0)
+      .then(result => result.must.eql(20));
   });
 });
