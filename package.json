@@ -1,5 +1,5 @@
 {
-  "name": "async-iterators",
+  "name": "@osirisdev/async-iterators",
   "version": "1.0.0",
   "description": "Iterator functions that run each cycle of the loop asynchronously",
   "main": "index.js",
@@ -17,7 +17,13 @@
     "iterators",
     "async",
     "asynchronous",
-    "es6"
+    "es6",
+    "forEach",
+    "each",
+    "map",
+    "reduce",
+    "transform",
+    "promise"
   ],
   "author": "Chris Thompson <chris@thompson-web.org>",
   "license": "ISC",
